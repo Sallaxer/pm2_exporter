@@ -1,0 +1,68 @@
+project_name: pm2_exporter
+
+release:
+  name_template: 'Release {{.Tag}}'
+  draft: true
+  github:
+    owner: Sallaxer
+    name: pm2_exporter
+
+builds:
+  - id: pm2_exporter
+    binary: pm2_exporter
+    main: .
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.date={{.Date}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+    - linux
+    - darwin
+    - windows
+    - freebsd
+    goarch:
+    - amd64
+    - arm
+    - arm64
+    - 386
+    - mips64le
+    - s390x
+    goarm:
+    - 6
+    - 7
+    - 8
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: freebsd
+        goarch: arm
+      - goos: freebsd
+        goarch: arm64
+      - goos: freebsd
+        goarch: 386
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}-v{{ .Version }}-
+      {{- .Os }}-
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+    - goos: windows
+      format: zip
+
+nfpms:
+- formats:
+    - deb
+  file_name_template: >-
+      {{ .ProjectName }}-v{{ .Version }}-
+      {{- .Os }}-
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+  description: A Prometheus exporter for PM2 app processes
+  maintainer: Sallaxer <https://github.com/Sallaxer>
